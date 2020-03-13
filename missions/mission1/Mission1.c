@@ -1,8 +1,8 @@
 /*
 *   Author: Moisés Fernández Zárate A01197049
-*   Date created: 01/03/2020
+*   Date created: 08/03/2020
 *
-*   Mission0.c
+*   Mission1.c
 *   In this mission we simulate a system that manages agents.
 */
 #include <stdio.h>
@@ -100,6 +100,14 @@ void addMission(Agent *agent, char mission[70], int counter);
 void deleteEntry();
 
 /*
+*	function searchEntry()
+*	This function searches for an agent's profile of the system.
+*	Parameters: none.
+*	Return value: none.
+*/
+void searchEntry();
+
+/*
 *	function showAgentProfile(agent)
 *	This function displays the profile of an agent that is received as a parameter.
 *	Parameters:
@@ -134,15 +142,108 @@ bool validateMission(char *mission);
 */
 bool validateIntelligenceActive(char *intelligenceActive);
 
+/*
+*	function encryptMessage(message)
+* 	This function encrypts a message if the password introduced is wrong and
+* 	also prints the message.The encryption technique used is Caesar Cipher.
+* 	Parameters:
+*	message: the message that will be encrypted.
+*	Return value: none.
+*/
+void encryptMessage(char message[100]);
+
+/*
+*	function validatePassword()
+*	This function receives a password introduced by the user and
+*	validates it.
+*	Parameters: none.
+*	Return value: none.
+*/
+void introducePassword();
+
 // Global variable to manage the list of agents that are registered.
 ListAgents agents;
+
+// Global variable to check if the introduced password is correct.
+bool correctPassword = true;
+
+// Global variable to store the system's password.
+char systemPassword[100] = "topsecret";
+
+// Global variable to store the message that will be encrypted.
+char message[100];
 
 // The main function.
 int main(void) 
 {
+	introducePassword();
     menu();
 
     return 0;
+}
+
+void introducePassword() 
+{
+	char password[100];
+
+	printf("Enter the password of the system: ");
+	scanf("%s", password);
+
+	//printf("%s %s \n", password, systemPassword);
+	//printf("%d \n", strcmp(password, systemPassword));
+
+	if (strcmp(password, systemPassword) != 0) 
+	{
+		correctPassword = false;
+
+		printf("The password introduced is incorrect.\n");
+	}
+	else 
+	{
+		printf("The password introduced is correct.\n");
+	}
+}
+
+void encryptMessage(char message[100]) 
+{
+	if (!correctPassword) 
+	{
+		char ch;
+		int key = 4;
+
+		for (int i = 0; i < strlen(message); i++) 
+		{
+			ch = message[i];
+		
+			if(ch >= 'a' && ch <= 'z') 
+			{
+				ch = ch + key;
+			
+				if(ch > 'z') 
+				{
+					ch = ch - 'z' + 'a' - 1;
+				}
+			
+				message[i] = ch;
+			}
+			else if (ch >= 'A' && ch <= 'Z') 
+			{
+				ch = ch + key;
+			
+				if(ch > 'Z') 
+				{
+					ch = ch - 'Z' + 'A' - 1;
+				}
+			
+				message[i] = ch;
+			}
+			else {
+				message[i] = '!';
+			}
+		}
+	}
+
+	printf("%s\n", message);
 }
 
 void menu()
@@ -151,12 +252,20 @@ void menu()
 
 	while (true)
 	{
-		printf("----------------------MENU----------------------\n");
-		printf("Select one of the following options (1, 2, 3 or 4):\n");
-		printf("1) Create a new entry\n");
-		printf("2) Delete an entry\n");
-		printf("3) Show all agents' profiles\n");
-		printf("4) Exit\n");
+		strcpy(message, "----------------------MENU----------------------");
+		encryptMessage(message);
+		strcpy(message, "Select one of the following options (1, 2, 3 or 4):");
+		encryptMessage(message);
+		strcpy(message, "1) Create a new entry");
+		encryptMessage(message);
+		strcpy(message, "2) Delete an entry");
+		encryptMessage(message);
+		strcpy(message, "3) Search for an entry");
+		encryptMessage(message);
+		strcpy(message, "4) Show all agents' profiles");
+		encryptMessage(message);
+		strcpy(message, "5) Exit");
+		encryptMessage(message);
 		scanf("%d", &option);
 		
 		switch(option)
@@ -168,13 +277,17 @@ void menu()
 				deleteEntry();
 				break;
 			case 3:
-				showAgents();
+				searchEntry();
 				break;
 			case 4:
+				showAgents();
+				break;
+			case 5:
 				exit(0);
 				break;
 			default:
-				printf("That is not a valid option.\n");
+				strcpy(message, "That is not a valid option.");
+				encryptMessage(message);
 				menu();
 				break;
 		}
@@ -280,30 +393,36 @@ void createEntry()
 	agent->missions.head = 0;
 	agent->missions.tail = 0;
 
-	printf("Enter the first name of the agent: ");
+	strcpy(message, "Enter the first name of the agent ");
+	encryptMessage(message);
     scanf("%s", agent->name);
 
-    printf("Enter the last name of the agent: ");
+    strcpy(message, "Enter the last name of the agent ");
+	encryptMessage(message);
     scanf("%s", agent->lastName);
 
-    printf("Enter the age of the agent: ");
+    strcpy(message, "Enter the age of the agent ");
+	encryptMessage(message);
     scanf("%d", &agent->age);
 
 	// Adding intelligence actives to an agent.
 	int numberIntelligenceActives = 0;
 	char intelligenceActive[70];
 
-	printf("Enter the number of intelligence actives: ");
+	strcpy(message, "Enter the number of intelligence actives");
+	encryptMessage(message);
 	scanf("%d", &numberIntelligenceActives);
 
 	for (int i = 0; i < numberIntelligenceActives; i++)
   	{
-		printf("Enter the intelligence active #%d: ", i + 1);
+		strcpy(message, "Enter the intelligence active");
+		encryptMessage(message);
 		scanf("%s", intelligenceActive);
 
 		while (!validateIntelligenceActive(intelligenceActive))
 		{
-			printf("The intelligence active is invalid. Please enter it again (4 letters followed by 9 digits): ");
+			strcpy(message, "The intelligence active is invalid. Please enter it again (4 letters followed by 9 digits)");
+			encryptMessage(message);
 			scanf("%s", intelligenceActive);
 		}
 
@@ -314,17 +433,20 @@ void createEntry()
 	int numberMissions = 0;
 	char mission[70];
 
-	printf("Enter the number of missions: ");
+	strcpy(message, "Enter the number of missions");
+	encryptMessage(message);
 	scanf("%d", &numberMissions);
 
 	for (int i = 0; i < numberMissions; i++)
 	{
-		printf("Enter mission #%d: ", i+1);
+		strcpy(message, "Enter the mission");
+		encryptMessage(message);
 		scanf("%s", mission);
 
 		while (!validateMission(mission))
 		{
-			printf("The mission is invalid. Please enter it again (3 letters followed by 9 digits): ");
+			strcpy(message, "The mission is invalid. Please enter it again (3 letters followed by 9 digits)");
+			encryptMessage(message);
 			scanf("%s", mission);
 		}
 
@@ -344,7 +466,8 @@ void createEntry()
 
 	agents.tail->next = 0;
 
-	printf("The agent profile was registered with success.\n");
+	strcpy(message, "The agent profile was registered with success.");
+	encryptMessage(message);
 }
 
 void deleteEntry()
@@ -353,9 +476,8 @@ void deleteEntry()
 	Agent *prev = agents.head;
 	char name[70];
 	char lastName[70];
-	int numberAgent = 1;
 
-	printf("To delete an agent, please enter the following information...\n");
+	printf("To delete an agent, please enter the following information...");
 	printf("Agent's first name: ");
     scanf("%s", name);
 
@@ -411,29 +533,294 @@ void deleteEntry()
 	printf("Error: The agent %s %s was not found.\n", name, lastName);
 }
 
+void searchEntry() {
+	Agent *curr = agents.head;
+	Agent *prev = agents.head;
+	char lastName[70];
+	int option;
+
+	strcpy(message, "To search for an entry, please enter the following information...");
+	encryptMessage(message);
+	strcpy(message, "Agent's last name");
+	encryptMessage(message);
+    scanf("%s", lastName);
+
+	strcpy(message, "Looking for the agent...");
+	encryptMessage(message);
+
+	if (curr == 0)
+	{
+		strcpy(message, "Error: The agent was not found.");
+		encryptMessage(message);
+
+		return;
+	}
+
+	if (!strcmp(curr->lastName, lastName))
+	{
+		strcpy(message, "The agent was found.");
+		encryptMessage(message);
+
+		while (true)
+		{
+			strcpy(message, "Select one of the following options (1, 2, 3 or 4):");
+			encryptMessage(message);
+			strcpy(message, "1) Delete the entry");
+			encryptMessage(message);
+			strcpy(message, "2) Edit the entry");
+			encryptMessage(message);
+			strcpy(message, "3) Return to the main menu");
+			encryptMessage(message);
+			strcpy(message, "4) Exit the system");
+			encryptMessage(message);
+			scanf("%d", &option);
+
+			if (option == 1) {
+				agents.head = agents.head->next;
+        		curr->next = 0;
+        		free(curr);
+        		curr = agents.head;
+        		prev = agents.head;
+
+				strcpy(message, "The agent was deleted succesfully.");
+				encryptMessage(message);
+
+				return;
+			}
+			else if (option == 2) {
+				// Adding intelligence actives to an agent.
+				int numberIntelligenceActives = 0;
+				char intelligenceActive[70];
+
+				strcpy(message, "Enter the number of intelligence actives that you want to add to the agent");
+				encryptMessage(message);
+				scanf("%d", &numberIntelligenceActives);
+
+				for (int i = 0; i < numberIntelligenceActives; i++)
+				{
+					strcpy(message, "Enter the intelligence active");
+					encryptMessage(message);
+					scanf("%s", intelligenceActive);
+
+					while (!validateIntelligenceActive(intelligenceActive))
+					{
+						strcpy(message, "The intelligence active is invalid. Please enter it again (4 letters followed by 9 digits)");
+						encryptMessage(message);
+						scanf("%s", intelligenceActive);
+					}
+
+					addIntelligenceActive(curr, intelligenceActive, 1);
+				}
+
+				// Adding missions to an agent.
+				int numberMissions = 0;
+				char mission[70];
+
+				strcpy(message, "Enter the number of missions that you want to add to the agent");
+				encryptMessage(message);
+				scanf("%d", &numberMissions);
+
+				for (int i = 0; i < numberMissions; i++)
+				{
+					strcpy(message, "Enter the mission");
+					encryptMessage(message);
+					scanf("%s", mission);
+
+					while (!validateMission(mission))
+					{
+						strcpy(message, "The mission is invalid. Please enter it again (3 letters followed by 9 digits)");
+						encryptMessage(message);
+						scanf("%s", mission);
+					}
+
+					addMission(curr, mission, 1);
+				}
+
+				strcpy(message, "The agent profile was updated with success.");
+				encryptMessage(message);
+			}
+			else if (option == 3) {
+				return;
+			}
+			else if (option == 4) {
+				exit(0);
+			}
+			else {
+				strcpy(message, "That is not a valid option.");
+				encryptMessage(message);
+				printf("Select one of the following options (1, 2, 3 or 4):");
+				encryptMessage(message);
+				strcpy(message, "1) Delete the entry");
+				encryptMessage(message);
+				strcpy(message, "2) Edit the entry");
+				encryptMessage(message);
+				strcpy(message, "3) Return to the main menu");
+				encryptMessage(message);
+				strcpy(message, "4) Exit the system");
+				encryptMessage(message);
+				scanf("%d", &option);
+			}
+		}
+	}
+	else
+	{
+		curr = curr->next;
+	}
+
+	while (curr != 0)
+	{
+		if (!strcmp(curr->lastName, lastName))
+		{
+			strcpy(message, "The agent was found.");
+			encryptMessage(message);
+
+			while (true)
+			{
+				strcpy(message, "Select one of the following options (1, 2, 3 or 4)");
+				encryptMessage(message);
+				strcpy(message, "1) Delete the entry");
+				encryptMessage(message);
+				strcpy(message, "2) Edit the entry");
+				encryptMessage(message);
+				strcpy(message, "3) Return to the main menu");
+				encryptMessage(message);
+				strcpy(message, "4) Exit the system");
+				encryptMessage(message);
+				scanf("%d", &option);
+
+				if (option == 1) {
+					prev->next = curr->next;
+					curr->next = 0;
+					free(curr);
+					curr = prev->next;
+
+					strcpy(message, "The agent was deleted succesfully.");
+
+					return;
+				}
+				else if (option == 2) {
+					// Adding intelligence actives to an agent.
+					int numberIntelligenceActives = 0;
+					char intelligenceActive[70];
+
+					strcpy(message, "Enter the number of intelligence actives that you want to add to the agent");
+					encryptMessage(message);
+					scanf("%d", &numberIntelligenceActives);
+
+					for (int i = 0; i < numberIntelligenceActives; i++)
+					{
+						strcpy(message, "Enter the intelligence active");
+						encryptMessage(message);
+						scanf("%s", intelligenceActive);
+
+						while (!validateIntelligenceActive(intelligenceActive))
+						{
+							strcpy(message, "The intelligence active is invalid. Please enter it again (4 letters followed by 9 digits)");
+							encryptMessage(message);
+							scanf("%s", intelligenceActive);
+						}
+
+						addIntelligenceActive(curr, intelligenceActive, 1);
+					}
+
+					// Adding missions to an agent.
+					int numberMissions = 0;
+					char mission[70];
+
+					strcpy(message, "Enter the number of missions that you want to add to the agent");
+					encryptMessage(message);
+					scanf("%d", &numberMissions);
+
+					for (int i = 0; i < numberMissions; i++)
+					{
+						strcpy(message, "Enter the mission");
+						encryptMessage(message);
+						scanf("%s", mission);
+
+						while (!validateMission(mission))
+						{
+							strcpy(message, "The mission is invalid. Please enter it again (3 letters followed by 9 digits");
+							encryptMessage(message);
+							scanf("%s", mission);
+						}
+
+						addMission(curr, mission, 1);
+					}
+
+					strcpy(message, "The agent profile was updated with success.");
+					encryptMessage(message);
+				}
+				else if (option == 3) {
+					return;
+				}
+				else if (option == 4) {
+					exit(0);
+				}
+				else {
+					strcpy(message, "That is not a valid option.");
+					encryptMessage(message);
+					strcpy(message, "Select one of the following options (1, 2, 3 or 4):");
+					encryptMessage(message);
+					strcpy(message, "1) Delete the entry");
+					encryptMessage(message);
+					strcpy(message, "2) Edit the entry");
+					encryptMessage(message);
+					strcpy(message, "3) Return to the main menu");
+					encryptMessage(message);
+					strcpy(message, "4) Exit the system");
+					encryptMessage(message);
+					scanf("%d", &option);
+				}
+			}
+		}
+		else
+		{
+			prev = prev->next;
+            curr = curr->next;
+		}
+	}
+
+	strcpy(message, "Error: The agent was not found.");
+	encryptMessage(message);
+}
+
 void showAgentProfile(Agent *agent)
 {
-	printf("----------------------AGENT PROFILE----------------------\n");
-	printf("Agent's name: %s\n", agent->name);
-	printf("Agent's last name: %s\n", agent->lastName);
-    printf("Agent's age: %d\n", agent->age);
-	printf("--------AGENT'S INTELLIGENCE ACTIVES--------\n");
+	strcpy(message, "----------------------AGENT PROFILE----------------------");
+	encryptMessage(message);
+	strcpy(message, "Agent's name");
+	encryptMessage(message);
+	strcpy(message, agent->name);
+	encryptMessage(message);
+	strcpy(message, "Agent's last name");
+	encryptMessage(message);
+	strcpy(message, agent->lastName);
+	encryptMessage(message);
+    strcpy(message, "Agent's age");
+	encryptMessage(message);
+	sprintf(message, "%d", agent->age);
+	encryptMessage(message);
+	strcpy(message, "--------AGENT'S INTELLIGENCE ACTIVES--------");
+	encryptMessage(message);
 
 	Node *curr = agent->intelligenceActives.head;
 	
 	while (curr != 0)
 	{
-		printf("%s\n", curr->input);
+		strcpy(message, curr->input);
+		encryptMessage(message);
 		curr = curr->next;
 	}
 
-	printf("--------AGENT'S MISSIONS--------\n");
+	strcpy(message, "--------AGENT'S MISSIONS--------");
+	encryptMessage(message);
 
 	curr = agent->missions.head;
 
 	while (curr != 0)
 	{
-		printf("%s\n", curr->input);
+		strcpy(message, curr->input);
+		encryptMessage(message);
 		curr = curr->next;
 	}
 }
