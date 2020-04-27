@@ -8,13 +8,74 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <windows.h>
 
-__declspec(dllexport) int asciiBinaryToInt(char *s);
+/*
+*   Function: int asciiBinaryToInt(char *s)
+*   This function converts a binary number received as a string
+*	into a decimal number.
+*   Parameters: char *s, the binary number that will be converted to int.
+*   Return value: an integer that is the conversion of the binary number.
+*/
+int asciiBinaryToInt(char *s);
 
-__declspec(dllexport) int asciiHEXToInt(char *s);
+/*
+*   Function: int asciiHEXToInt(char *s)
+*   This function converts a hexadecimal number received as a string
+*	into a decimal number.
+*   Parameters: char *s, the hexadecimal number that will be converted to int.
+*   Return value: an integer that is the conversion of the hexadecimal number.
+*/
+int asciiHEXToInt(char *s);
 
-__declspec(dllexport) double asciiToDouble(char *s);
+/*
+*   Function: int asciiToDouble(char *s)
+*   This function converts a double received as a string into a double number.
+*   Parameters: char *s, the double as a string that will be converted to double.
+*   Return value: a double number that is the conversion of the string.
+*/
+double asciiToDouble(char *s);
+
+int main(void) {
+	char *s;
+	int iResult;
+	double dResult;
+
+	// Binary conversion.
+	printf("Please enter a binary number: ");
+	scanf("%s", s);
+	iResult = asciiBinaryToInt(s);
+
+	while (iResult == -1)
+	{
+		printf("Please enter a valid binary number: ");
+		scanf("%s", s);
+		iResult = asciiBinaryToInt(s);
+	}
+
+	printf("The conversion to decimal from %s is %d.\n", s, iResult);
+
+	// Hexadecimal conversion.
+	printf("Please enter a hexadecimal number: ");
+	scanf("%s", s);
+	iResult = asciiHEXToInt(s);
+
+	while (iResult == -1)
+	{
+		printf("Please enter a valid hexadecimal number: ");
+		scanf("%s", s);
+		iResult = asciiHEXToInt(s);
+	}
+
+	printf("The conversion to decimal from %s is %d.\n", s, iResult);
+
+	// Double conversion.
+	printf("Please enter the double number: ");
+	scanf("%s", s);
+	dResult = asciiToDouble(s);
+	printf("The conversion to double from %s is %lf.\n", s, dResult);
+
+	return 0;
+}
 
 int asciiBinaryToInt(char *s) 
 {
