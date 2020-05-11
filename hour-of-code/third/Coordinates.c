@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
     char *nameFile = argv[1];
     FILE *file = fopen(nameFile, "r");
 
-    // To store the number of coordinates in the file.
+    // To store the number of coordinates that the file has.
     char input[300];
     int numberCoordinates = 0;
 
