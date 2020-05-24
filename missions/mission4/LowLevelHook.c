@@ -1,3 +1,13 @@
+// Marcos Leroy Salazar Skinner
+// A01039743
+// Moisés Fernández Zárate
+// A01197049
+// Date: 24/5/2020
+
+// Mission 4
+// Low Level Hook
+// Programa en el que se genera un archivo con las coordenadas de cada clic que haga el usuario en la pantalla.
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <X11/Xlib.h>
