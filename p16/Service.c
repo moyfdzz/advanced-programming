@@ -48,7 +48,7 @@ int main(void) {
         while (1) {
            mainCodeChef();
            
-           sleep(30); /* wait 30 seconds */
+           sleep(10); /* wait 30 seconds */
         }
    exit(EXIT_SUCCESS);
 }
