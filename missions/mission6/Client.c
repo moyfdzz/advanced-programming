@@ -24,7 +24,7 @@ void error(const char *msg)
 }
 
 // Function to handle events.
-char* handleEvent(int fd) {
+const char* handleEvent(int fd) {
     char buffer[EVENT_BUF_LEN];
     int length, i = 0;
 
@@ -37,33 +37,58 @@ char* handleEvent(int fd) {
     }  
 
     while (i < length) {
+        char msg[100];
         struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];
 
         if (event->len ) {
             if (event->mask & IN_CREATE) {
                 if (event->mask & IN_ISDIR) {
-		            return("The directory %s was created\n", event->name);  
+                    strcpy(msg, "The directory ");
+                    strcat(msg, event->name);
+                    strcat(msg, " was created.\n");
+                    return msg;
+		            //return("The directory %s was created\n", event->name);  
                 }       
                 else {
-		            return("The file %s was created\n", event->name);
+                    strcpy(msg, "The file ");
+                    strcat(msg, event->name);
+                    strcat(msg, " was created.\n");
+                    return msg;
+		            //return("The file %s was created\n", event->name);
                 }
             }
              
             if (event->mask & IN_MODIFY) {
                 if (event->mask & IN_ISDIR) { 
-		            return("The directory %s was modified\n", event->name);  
+                    strcpy(msg, "The file ");
+                    strcat(msg, event->name);
+                    strcat(msg, " was modified.\n");
+                    return msg;
+		            //return("The directory %s was modified\n", event->name);  
                 }
                 else {
-		            return("The file %s was modified\n", event->name);
+                    strcpy(msg, "The file ");
+                    strcat(msg, event->name);
+                    strcat(msg, " was modified.\n");
+                    return msg;
+		            //return("The file %s was modified\n", event->name);
                 }       
             }
              
             if (event->mask & IN_DELETE) {
                 if (event->mask & IN_ISDIR) {
-                    return("The directory %s was deleted\n", event->name );  
+                    strcpy(msg, "The directory ");
+                    strcat(msg, event->name);
+                    strcat(msg, " was deleted.\n");
+                    return msg;
+                    //return("The directory %s was deleted\n", event->name);  
                 }
                 else {
-                    return("The file %s was deleted\n", event->name);
+                    strcpy(msg, "The file ");
+                    strcat(msg, event->name);
+                    strcat(msg, " was deleted.\n");
+                    return msg;
+                    //return("The file %s was deleted\n", event->name);
                 }
             }  
 
@@ -72,6 +97,7 @@ char* handleEvent(int fd) {
     }
 }
 
+// Principal function of the program.
 int main(void) {
     int sockfd, portno, n;
     struct sockaddr_in serv_addr;
@@ -136,6 +162,9 @@ int main(void) {
         strcpy(buffer, handleEvent(fd));
         n = write(sockfd,buffer,strlen(buffer));
 
+        // Prints the action from the directory being monitored.
+        printf("%s\n",buffer);
+
         // Verifies the message.
         if (n < 0) {
             error("ERROR writing to socket.");
@@ -153,7 +182,7 @@ int main(void) {
         }
 
         // Prints the message received from the server.
-        printf("%s\n",buffer);
+        printf("\n%s\n",buffer);
     }
 
      

@@ -71,7 +71,7 @@ int main()
         
         // Verifies the message received.
         if (n < 0) {
-        error("ERROR reading from socket");
+            error("ERROR reading from socket");
         }
         
         // Prints the message received.
