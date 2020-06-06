@@ -124,9 +124,9 @@ int main(void) {
     wd = inotify_add_watch(fd, "./User", IN_CREATE | IN_MODIFY | IN_DELETE);
 
     if (wd == -1) {
-        error("[!] Couldn't add watch to /Directory\n");
+        error("Couldn't add watch to /User\n");
     } else {
-        printf("Watching: /Directory\n");
+        printf("Watching: /User\n");
     }
 
     while(1) {
@@ -149,7 +149,7 @@ int main(void) {
 
         // Verifies the message received from the server.
         if (n < 0) {
-            error("[!] ERROR reading from socket");
+            error("ERROR reading from socket");
         }
 
         // Prints the message received from the server.
