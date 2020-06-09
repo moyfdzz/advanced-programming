@@ -7,12 +7,19 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/inotify.h>
+#include <fcntl.h>
 
 #define PORT 8080
+#define MAXLINE 1024
+
 #define MAX_EVENTS 1024 // Max number of events to process
 #define LEN_NAME 1024 // Assuming length of the filename won't exceed 16 bytes
 #define EVENT_SIZE ( sizeof (struct inotify_event) ) // Size of one event
 #define EVENT_BUF_LEN ( MAX_EVENTS * ( EVENT_SIZE + LEN_NAME ) ) // Buffer to store data of events
+
+char *NEW_FILE_FLAG = "newFile";
+char *DELETE_FILE_FLAG = "deleteFile";
+char *END_FLAG = "+++===+++END";
 
 // Function that prints the error received as a parameter and then closes the program.
 void error(const char *msg)
@@ -26,9 +33,11 @@ int main()
 {
     int sockfd, newsockfd, portno;
     socklen_t clilen;
-    char buffer[EVENT_BUF_LEN];
+    char buffer[MAXLINE], method[MAXLINE], fileName[MAXLINE];
     struct sockaddr_in serv_addr, cli_addr;
-    int n;
+    int n, len;
+
+    FILE * fp;
 
     // Creates the socket.
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -36,6 +45,7 @@ int main()
     // Verifies if a port was provided.
     if (sockfd < 0) {
         error("ERROR opening socket");
+        exit(1);
     }
 
     // Erase data from serv_addr
@@ -54,6 +64,8 @@ int main()
     // The server is ready to listen.
     listen(sockfd,5);
     clilen = sizeof(cli_addr);
+
+    printf("Server oppened succesfully! Ready to listen\n\n");
     
     // Accept the data from client.
     newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
@@ -62,8 +74,107 @@ int main()
     if (newsockfd < 0) {
         error("ERROR on accept");
     }
+    
 
     while(1) {
+        bzero(buffer,256);
+        bzero(method,256);
+        bzero(fileName,256);
+
+        printf("Ready for next event\n");
+
+        // Method
+        n = recvfrom(newsockfd, method, MAXLINE, 0, (struct sockaddr*)&cli_addr, (socklen_t *)&len); // message of method
+        method[n] = '\0';
+        printf("Method: %s\n", method);
+        // Send message to client
+        n = write(newsockfd,"I got the method",17);
+
+        // Message verification
+        if (n < 0) {
+            error("ERROR writing to socket");
+        }
+
+        // when method new file, update or new file
+        if(strcmp(NEW_FILE_FLAG, method) == 0) {
+            bzero(fileName,256);
+            // File name
+            n = recvfrom(newsockfd, fileName, MAXLINE, 0, (struct sockaddr*)&cli_addr, (socklen_t *)&len); // message of fileName
+            fileName[n] = '\0';
+            printf("File name: %s\n", fileName);
+
+            n = write(newsockfd,"I got the fileName",19);
+
+            // Message verification
+            if (n < 0) {
+                error("ERROR writing to socket");
+            }
+
+            char* path = "./Server/";
+            size_t len = strlen(path) + strlen(fileName) + 1;
+            char* fullPath = malloc(len);
+
+            strcpy(fullPath, path);
+            strcat(fullPath, fileName);
+
+            fp = fopen(fullPath, "w");
+            free(fullPath);
+
+            bzero(buffer,256);
+            // Receive file
+            while ((n = recvfrom(newsockfd, buffer, MAXLINE, 0, (struct sockaddr*)&cli_addr, (socklen_t *)&len)) > 0) {
+                buffer[n] = '\0';
+
+                if(strcmp(END_FLAG, buffer) == 0) { // eof reached
+                    break;
+                }
+                printf("\nFile writing this: %s\n", buffer);
+                fprintf(fp, "%s", buffer);
+
+                n = write(newsockfd,"I got the line",15);
+
+                // Message verification
+                if (n < 0) {
+                    error("ERROR writing to socket");
+                }
+            
+            }
+
+            printf("Reached close\n");
+            fclose(fp);
+        } else if (strcmp(DELETE_FILE_FLAG, method) == 0) { // when method delete
+            printf("Entered delete");
+            // File name
+            n = recvfrom(newsockfd, fileName, MAXLINE, 0, (struct sockaddr*)&cli_addr, (socklen_t *)&len); // message of fileName
+            fileName[n] = '\0';
+            printf("File name to delete: %s\n", fileName);
+
+            n = write(newsockfd,"I got the fileName",19);
+
+            // Message verification
+            if (n < 0) {
+                error("ERROR writing to socket");
+            }
+
+            char* path = "./Server/";
+            size_t len = strlen(path) + strlen(fileName) + 1;
+            char* fullPath = malloc(len);
+
+            strcpy(fullPath, path);
+            strcat(fullPath, fileName);
+
+            if(remove(fullPath) == 0)
+                printf("Deleted %s sucessfully\n", fullPath);
+            else
+                printf("Unable to delete %s\n", fullPath);
+
+            free(fullPath);
+
+        }
+
+
+        /*
+
         bzero(buffer,256);
 
         // Read message from client and store it in the buffer.
@@ -71,7 +182,7 @@ int main()
         
         // Verifies the message received.
         if (n < 0) {
-            error("ERROR reading from socket");
+        error("ERROR reading from socket");
         }
         
         // Prints the message received.
@@ -84,6 +195,8 @@ int main()
         if (n < 0) {
             error("ERROR writing to socket");
         }
+
+        */
     }
 
     // Closes the socket to stop the communication with the client.
