@@ -1,3 +1,11 @@
+// Marcos Leroy Salazar Skinner A01039743
+// Moisés Fernández Zárate A01197049
+// Santiago Castano Moreno A01193760
+// Date: 8/6/2020
+
+// Mission 6
+// Parte servidor de misión 6, esta parte del código recibe los cambios del cliente y los aplica en el respaldo del servidor.
+
 #include <stdio.h>
 #include <netdb.h> 
 #include <stdlib.h>

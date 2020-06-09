@@ -1,3 +1,11 @@
+// Marcos Leroy Salazar Skinner A01039743
+// Moisés Fernández Zárate A01197049
+// Santiago Castano Moreno A01193760
+// Date: 8/6/2020
+
+// Mission 6
+// Parte cliente de misión 6, este cliente vigila un directorio y lo respalda a un servidor
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
